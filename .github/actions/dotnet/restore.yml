@@ -1,0 +1,22 @@
+name: 'Restore .NET Dependencies'
+description: 'Restores NuGet packages for a .NET project'
+
+inputs:
+  project-path:
+    description: 'Path to the project or solution file'
+    required: false
+    default: '.'
+  verbosity:
+    description: 'MSBuild verbosity level'
+    required: false
+    default: 'minimal'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Restore dependencies
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Restoring dependencies for: ${{ inputs.project-path }}"
+        dotnet restore --verbosity ${{ inputs.verbosity }}

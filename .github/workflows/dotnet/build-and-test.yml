@@ -1,0 +1,118 @@
+name: '.NET Build and Test'
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: '.NET SDK version'
+        required: false
+        type: string
+        default: '8.0.x'
+      project-path:
+        description: 'Path to project/solution'
+        required: false
+        type: string
+        default: '.'
+      build-configuration:
+        description: 'Build configuration'
+        required: false
+        type: string
+        default: 'Release'
+      run-tests:
+        description: 'Execute unit tests'
+        required: false
+        type: boolean
+        default: true
+      collect-coverage:
+        description: 'Collect code coverage'
+        required: false
+        type: boolean
+        default: false
+      test-filter:
+        description: 'Test filter expression'
+        required: false
+        type: string
+        default: ''
+      runner:
+        description: 'GitHub runner to use'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+    outputs:
+      build-succeeded:
+        description: 'Whether build succeeded'
+        value: ${{ jobs.build.outputs.success }}
+      test-results:
+        description: 'Test results summary'
+        value: ${{ jobs.build.outputs.test-results }}
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ${{ inputs.runner }}
+    outputs:
+      success: ${{ steps.build-status.outputs.success }}
+      test-results: ${{ steps.test-status.outputs.results }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: ./.github/actions/dotnet/setup
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+          cache-dependencies: 'true'
+      
+      - name: Restore dependencies
+        uses: ./.github/actions/dotnet/restore
+        with:
+          project-path: ${{ inputs.project-path }}
+      
+      - name: Build project
+        id: build
+        uses: ./.github/actions/dotnet/build
+        with:
+          project-path: ${{ inputs.project-path }}
+          configuration: ${{ inputs.build-configuration }}
+          no-restore: 'true'
+      
+      - name: Set build status
+        id: build-status
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run tests
+        id: test
+        if: inputs.run-tests
+        uses: ./.github/actions/dotnet/test
+        with:
+          project-path: ${{ inputs.project-path }}
+          configuration: ${{ inputs.build-configuration }}
+          no-build: 'true'
+          collect-coverage: ${{ inputs.collect-coverage }}
+          test-filter: ${{ inputs.test-filter }}
+      
+      - name: Set test status
+        id: test-status
+        if: always() && inputs.run-tests
+        shell: bash
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ]; then
+            echo "results=passed" >> $GITHUB_OUTPUT
+          else
+            echo "results=failed" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload coverage reports
+        if: inputs.collect-coverage && inputs.run-tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: ${{ inputs.project-path }}/TestResults/**/coverage.cobertura.xml

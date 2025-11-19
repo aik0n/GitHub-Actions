@@ -1,0 +1,39 @@
+name: 'Push to NuGet'
+description: 'Publishes NuGet packages to a feed'
+
+inputs:
+  package-path:
+    description: 'Path to .nupkg files (supports wildcards)'
+    required: true
+  nuget-source:
+    description: 'NuGet feed URL'
+    required: false
+    default: 'https://api.nuget.org/v3/index.json'
+  api-key:
+    description: 'NuGet API key'
+    required: true
+  skip-duplicate:
+    description: 'Skip pushing if package version already exists'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Push NuGet packages
+      shell: bash
+      run: |
+        echo "Publishing packages from: ${{ inputs.package-path }}"
+        
+        PUSH_ARGS="--source ${{ inputs.nuget-source }} --api-key ${{ inputs.api-key }}"
+        
+        if [ "${{ inputs.skip-duplicate }}" == "true" ]; then
+          PUSH_ARGS="$PUSH_ARGS --skip-duplicate"
+        fi
+        
+        for package in ${{ inputs.package-path }}; do
+          if [ -f "$package" ]; then
+            echo "Pushing: $package"
+            dotnet nuget push "$package" $PUSH_ARGS
+          fi
+        done

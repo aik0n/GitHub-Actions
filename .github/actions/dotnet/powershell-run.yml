@@ -1,0 +1,20 @@
+name: 'Run PowerShell Script'
+description: 'Executes a PowerShell script with parameters'
+
+inputs:
+  script-path:
+    description: 'Path to PowerShell script'
+    required: true
+  script-args:
+    description: 'Arguments to pass to the script'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run PowerShell script
+      shell: pwsh
+      run: |
+        Write-Host "Executing: ${{ inputs.script-path }}"
+        & "${{ inputs.script-path }}" ${{ inputs.script-args }}

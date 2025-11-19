@@ -1,0 +1,52 @@
+name: 'Build .NET Project'
+description: 'Builds a .NET project or solution'
+
+inputs:
+  project-path:
+    description: 'Path to the project or solution file'
+    required: false
+    default: '.'
+  configuration:
+    description: 'Build configuration (Debug/Release)'
+    required: false
+    default: 'Release'
+  no-restore:
+    description: 'Skip restore during build'
+    required: false
+    default: 'true'
+  output-path:
+    description: 'Output directory for build artifacts'
+    required: false
+    default: ''
+  verbosity:
+    description: 'MSBuild verbosity level'
+    required: false
+    default: 'minimal'
+
+outputs:
+  build-path:
+    description: 'Path to build output'
+    value: ${{ steps.build.outputs.build-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build project
+      id: build
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Building project: ${{ inputs.project-path }}"
+        
+        BUILD_ARGS="--configuration ${{ inputs.configuration }} --verbosity ${{ inputs.verbosity }}"
+        
+        if [ "${{ inputs.no-restore }}" == "true" ]; then
+          BUILD_ARGS="$BUILD_ARGS --no-restore"
+        fi
+        
+        if [ -n "${{ inputs.output-path }}" ]; then
+          BUILD_ARGS="$BUILD_ARGS --output ${{ inputs.output-path }}"
+          echo "build-path=${{ inputs.output-path }}" >> $GITHUB_OUTPUT
+        fi
+        
+        dotnet build $BUILD_ARGS
