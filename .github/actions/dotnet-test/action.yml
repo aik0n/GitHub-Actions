@@ -22,7 +22,7 @@ inputs:
     description: 'Filter expression to select tests'
     required: false
     default: ''
-  verbosity:
+  test-verbosity:
     description: 'Test verbosity level'
     required: false
     default: 'normal'
@@ -42,7 +42,7 @@ runs:
       run: |     
         TEST_ARGS=(
           "--configuration" "${{ inputs.configuration }}"
-          "--verbosity" "${{ inputs.verbosity }}"
+          "--verbosity" "${{ inputs.test-verbosity }}"
           "--logger" "trx;LogFileName=test-results.trx"
           "--results-directory" "./TestResults"
         )

@@ -28,6 +28,10 @@ on:
         required: false
         type: string
         default: '.'
+      test-verbosity:
+        description: 'Test verbosity level'
+        required: false
+        default: 'normal'
       collect-coverage:
         description: 'Collect code coverage'
         required: false
@@ -100,6 +104,7 @@ jobs:
         with:
           test-project-path: ${{ inputs.test-project-path }}
           configuration: ${{ inputs.build-configuration }}
+          test-verbosity: ${{ inputs.test-verbosity }}
           no-build: 'true'
           collect-coverage: ${{ inputs.collect-coverage }}
           test-filter: ${{ inputs.test-filter }}
