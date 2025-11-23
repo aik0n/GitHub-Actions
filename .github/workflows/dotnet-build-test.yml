@@ -98,7 +98,7 @@ jobs:
         if: inputs.run-tests
         uses: aik0n/ci-cd-hub/.github/actions/dotnet-test@main
         with:
-          project-path: ${{ inputs.project-path }}
+          project-path: ${{ inputs.test-project-path }}
           configuration: ${{ inputs.build-configuration }}
           no-build: 'true'
           collect-coverage: ${{ inputs.collect-coverage }}
@@ -120,4 +120,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
-          path: ${{ inputs.project-path }}/TestResults/**/coverage.cobertura.xml
+          path: ${{ inputs.test-project-path }}/TestResults/**/coverage.cobertura.xml
