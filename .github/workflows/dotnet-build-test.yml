@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: true
+      test-project-path:
+        description: 'Path to test project/solution'
+        required: false
+        type: string
+        default: '.'
       collect-coverage:
         description: 'Collect code coverage'
         required: false
