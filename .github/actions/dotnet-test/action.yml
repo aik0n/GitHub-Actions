@@ -43,7 +43,7 @@ runs:
         echo "Running tests for: ${{ inputs.test-project-path }}"
         
         TEST_ARGS="--configuration ${{ inputs.configuration }} --verbosity ${{ inputs.verbosity }}"
-        TEST_ARGS="$TEST_ARGS --logger 'trx;LogFileName=test-results.trx'"
+        TEST_ARGS="$TEST_ARGS --logger trx;LogFileName=test-results.trx"
         TEST_ARGS="$TEST_ARGS --results-directory ./TestResults"
         
         if [ "${{ inputs.no-build }}" == "true" ]; then
