@@ -2,7 +2,7 @@ name: 'Run .NET Tests'
 description: 'Executes unit tests for a .NET project'
 
 inputs:
-  project-path:
+  test-project-path:
     description: 'Path to the test project or solution'
     required: false
     default: '.'
@@ -38,9 +38,9 @@ runs:
     - name: Run tests
       id: test
       shell: bash
-      working-directory: ${{ inputs.project-path }}
+      working-directory: ${{ inputs.test-project-path }}
       run: |
-        echo "Running tests for: ${{ inputs.project-path }}"
+        echo "Running tests for: ${{ inputs.test-project-path }}"
         
         TEST_ARGS="--configuration ${{ inputs.configuration }} --verbosity ${{ inputs.verbosity }}"
         TEST_ARGS="$TEST_ARGS --logger 'trx;LogFileName=test-results.trx'"
@@ -67,4 +67,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ github.run_number }}
-        path: ${{ inputs.project-path }}/TestResults/**/*
+        path: ${{ inputs.test-project-path }}/TestResults/**/*
