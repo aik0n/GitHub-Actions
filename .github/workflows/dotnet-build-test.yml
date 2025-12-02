@@ -126,4 +126,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
-          path: ${{ inputs.test-project-path }}/TestResults/**/coverage.cobertura.xml
+          path: '**/TestResults/**/coverage.cobertura.xml'
